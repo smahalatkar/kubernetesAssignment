@@ -1,0 +1,61 @@
+Learning Objectives:-
+Perform a rolling update of the container version
+Roll back to the previous working state
+
+
+Problem Statement:-
+Your company's developers have just finished developing a new version of their candy-themed mobile game. 
+They are ready to update the backend services that are running in your Kubernetes cluster. 
+There is a deployment in the cluster managing the replicas for this application. 
+The deployment is called candy-deployment. 
+You have been asked to update the image for the container named candy-ws in this deployment template to a new version, linuxacademycontent/candy-service:3.
+
+After you have updated the image using a rolling update, check on the status of the update to make sure it is working. 
+If it is not working, perform a rollback to the previous state.
+
+vi candy-deployment.yml
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: candy-deployment
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: my-app
+  template:
+    metadata:
+      labels:
+        app: my-app
+    spec:
+      containers:
+      - name: candy-ws
+        image: linuxacademycontent/candy-service:3 
+
+kubectl get pods
+NAME                               READY   STATUS             RESTARTS   AGE
+candy-deployment-c799b46db-chgnf   0/1     ImagePullBackOff   0          5m11s
+candy-deployment-c799b46db-cmfh7   0/1     ImagePullBackOff   0          5m11s
+candy-deployment-c799b46db-js6mb   0/1     ImagePullBackOff   0          5m11s
+
+kubectl get deployments
+NAME               READY   UP-TO-DATE   AVAILABLE   AGE
+candy-deployment   0/3     3            0           5m58s
+
+
+kubectl set image deployment/candy-deployment candy-ws=linuxacademycontent/candy-service:2--record
+deployment.extensions/candy-deployment image updated
+
+kubectl get podsNAME                                READY   STATUS    RESTARTS   AGE
+candy-deployment-5d8b6f7c67-8fq72   1/1     Running   0          41s
+candy-deployment-5d8b6f7c67-fsmfc   1/1     Running   0          43s
+candy-deployment-5d8b6f7c67-nc6vh   1/1     Running   0          51s
+
+kubectl get deploymentsNAME               READY   UP-TO-DATE   AVAILABLE   AGE
+candy-deployment   3/3     3            3           9m5s
+
+
+
+ 
+

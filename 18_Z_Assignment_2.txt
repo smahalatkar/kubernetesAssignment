@@ -1,0 +1,50 @@
+Learning Objectives:-
+Create the cron job in the cluster
+Allow the cron job to run successfully
+
+Problem Statement:-
+Your company has a simple data cleanup process that is run periodically for maintenance purposes. 
+They would like to stop doing this manually in order to save time, 
+so you have been asked to implement a cron job in the Kubernetes cluster to run this process. 
+Create a cron job called cleanup-cronjob using the linuxacademycontent/data-cleanup:1 image. 
+Have the job run every minute with the following cron expression: */1 * * * *.
+
+vi cleanup-cronjob.yml
+ 
+apiVersion: batch/v1beta1
+kind: CronJob
+metadata:
+  name: cleanup-cronjob
+spec:
+  schedule: "*/1 * * * *"
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 1
+  failedJobsHistoryLimit: 1
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+          - name: my-cleanup
+            image: linuxacademycontent/data-cleanup:1
+          restartPolicy: OnFailure 
+
+kubectl get pods
+NAME                               READY   STATUS              RESTARTS   AGE
+cleanup-cronjob-1574853360-r8c92   0/1     ContainerCreating   0          1s  
+
+kubectl get jobs
+NAME                         COMPLETIONS   DURATION   AGE
+cleanup-cronjob-1574853360   1/1           4s         18s
+
+master $ kubectl get po
+NAME                               READY   STATUS      RESTARTS   AGE
+cleanup-cronjob-1574853360-r8c92   0/1     Completed   0          46s
+
+master $ kubectl get cronjobs
+
+NAME              SCHEDULE      SUSPEND   ACTIVE   LAST SCHEDULE   AGE
+cleanup-cronjob   */1 * * * *   False     0        58s             4m7s
+master $ kubectl get cronjobs
+NAME              SCHEDULE      SUSPEND   ACTIVE   LAST SCHEDULE   AGE
+cleanup-cronjob   */1 * * * *   False     1        2s              4m11s
