@@ -1,0 +1,357 @@
+Your supermarket company is in the process of improving their Docker-based applications. They have built a set of three RESTful data services that communicate with each other as part of a larger infrastructure. You have been given the task of designing a Docker application stack so that these three services can be easily managed and scaled as a unit. A Docker Swarm cluster has already been set up by you to use in previous execises.
+
+Here is some background information on the three services:
+
+1. Fruit Service
+	a. Provides a list of fruits sold in the company's stores.
+	b. You can use the Docker image tag linuxacademycontent/fruit-service:1.0.1 to run this service.
+	c. Listens on port 80.
+	d. The service should be named fruit inside the stack.
+
+2. Vegetable Service
+	a. Provides a list of vegetables sold in the company's stores.
+	b. You can use the Docker image tag linuxacademycontent/vegetable-service:1.0.0 to run this service.
+	c. Listens on port 80.
+	d. The service should be named vegetables inside the stack.
+
+3. All Products Service
+	a. Queries the other two services, combining their data into a single list of all produce.
+	b. You can use the Docker image tag linuxacademycontent/all-products:1.0.0 to run this service.
+	c. Listens on port 80.
+	d. Use the environment variables FRUIT_HOST and FRUIT_PORT to set the host and port which will be used to query the fruit service.
+	e. Use the environment variables VEGETABLE_HOST and VEGETABLE_PORT to set the host and port which will be used to query the vegetable service.
+
+Step 1
+Deploy a Docker application stack that meets the following specifications:
+1. The stack is called produce.
+2. The stack runs the Fruit, Vegetable, and All Products services.
+3. The All Products service is able to query the Fruit and Vegetable services.
+4. The All Products service is published on port 8080.
+
+One you have deployed the stack, you can verify whether it is working by querying the All Products service:
+
+curl localhost:8080
+
+If the stack is set up correctly, you should get a combined list of fruits and vegetables.
+
+Step 2
+Once you have deployed the stack and verified that it is working, modify the stack by scaling both the Fruit and Vegetable services up to 3 replicas.
+
+
+Good luck!
+
+-------------------------------------------------------------------------------------------------------------------------------------------
+
+vi products.yml
+
+version: '3'
+services: 
+ fruit: 
+  image: linuxacademycontent/fruit-service:1.0.1
+  ports:
+   - 8081:80
+  environment:
+   - FRUIT_HOST=http://172.31.13.74
+   - FRUIT_PORT=8081
+ vegetable:
+  image: linuxacademycontent/vegetable-service:1.0.0
+  ports:
+   - 8082:80
+  environment:
+   - VEGETABLE_HOST=http://172.31.13.74
+   - VEGETABLE_PORT=8082
+ allproduct:
+  image: linuxacademycontent/all-products:1.0.0
+  ports:
+   - 8080:80
+  environment:
+   - VEGETABLE_HOST=http://172.31.13.74
+   - VEGETABLE_PORT=8080 
+
+
+docker stack deploy -c products.yml products
+
+Creating network products_default
+Creating service products_fruit
+Creating service products_vegetable
+Creating service products_allproduct
+
+docker service ls
+ID                  NAME                  MODE                REPLICAS            IMAGE                                         PORTS
+qic8era66sp7        products_allproduct   replicated          1/1                 linuxacademycontent/all-products:1.0.0        *:8080->80/tcp
+szkg044vq4o9        products_fruit        replicated          1/1                 linuxacademycontent/fruit-service:1.0.1       *:8082->80/tcp
+jqqocv3qbv89        products_vegetable    replicated          1/1                 linuxacademycontent/vegetable-service:1.0.0   *:8081->80/tcp
+
+
+curl localhost:8082
+{
+  "description": "A list of fruits.",
+  "fruits": [
+    "apple",
+    "apricot",
+    "avocado",
+    "banana",
+    "bell pepper",
+    "bilberry",
+    "blackberry",
+    "blackcurrant",
+    "blood orange",
+    "blueberry",
+    "boysenberry",
+    "breadfruit",
+    "canary melon",
+    "cantaloupe",
+    "cherimoya",
+    "cherry",
+    "chili pepper",
+    "clementine",
+    "cloudberry",
+    "coconut",
+    "cranberry",
+    "cucumber",
+    "currant",
+    "damson",
+    "date",
+    "dragonfruit",
+    "durian",
+    "eggplant",
+    "elderberry",
+    "feijoa",
+    "fig",
+    "goji berry",
+    "gooseberry",
+    "grape",
+    "grapefruit",
+    "guava",
+    "honeydew",
+    "huckleberry",
+    "jackfruit",
+    "jambul",
+    "jujube",
+    "kiwi fruit",
+    "kumquat",
+    "lemon",
+    "lime",
+    "loquat",
+    "lychee",
+    "mandarine",
+    "mango",
+    "mulberry",
+    "nectarine",
+    "nut",
+    "olive",
+    "orange",
+    "pamelo",
+    "papaya",
+    "passionfruit",
+    "peach",
+    "pear",
+    "persimmon",
+    "physalis",
+    "pineapple",
+    "plum",
+    "pomegranate",
+    "pomelo",
+    "purple mangosteen",
+    "quince",
+    "raisin",
+    "rambutan",
+    "raspberry",
+    "redcurrant",
+    "rock melon",
+    "salal berry",
+    "satsuma",
+    "star fruit",
+    "strawberry",
+    "tamarillo",
+    "tangerine",
+    "tomato",
+    "ugli fruit",
+    "watermelon"
+  ]
+}
+
+curl localhost:8081
+
+{
+    "description": "A list of vegetables.",
+    "vegetables": [
+        "acorn squash",
+        "alfalfa sprout",
+        "amaranth",
+        "anise",
+        "artichoke",
+        "arugula",
+        "asparagus",
+        "aubergine",
+        "azuki bean",
+        "banana squash",
+        "basil",
+        "bean sprout",
+        "beet",
+        "black bean",
+        "black-eyed pea",
+        "bok choy",
+        "borlotti bean",
+        "broad beans",
+        "broccoflower",
+        "broccoli",
+        "brussels sprout",
+        "butternut squash",
+        "cabbage",
+        "calabrese",
+        "caraway",
+        "carrot",
+        "cauliflower",
+        "cayenne pepper",
+        "celeriac",
+        "celery",
+        "chamomile",
+        "chard",
+        "chayote",
+        "chickpea",
+        "chives",
+        "cilantro",
+        "collard green",
+        "corn",
+        "corn salad",
+        "courgette",
+        "cucumber",
+        "daikon",
+        "delicata",
+        "dill",
+        "eggplant",
+        "endive",
+        "fennel",
+        "fiddlehead",
+        "frisee",
+        "garlic",
+        "gem squash",
+        "ginger",
+        "green bean",
+        "green pepper",
+        "habanero",
+        "herbs and spice",
+        "horseradish",
+        "hubbard squash",
+        "jalapeno",
+        "jerusalem artichoke",
+        "jicama",
+        "kale",
+        "kidney bean",
+        "kohlrabi",
+        "lavender",
+        "leek ",
+        "legume",
+        "lemon grass",
+        "lentils",
+        "lettuce",
+        "lima bean",
+        "mamey",
+        "mangetout",
+        "marjoram",
+        "mung bean",
+        "mushroom",
+        "mustard green",
+        "navy bean",
+        "new zealand spinach",
+        "nopale",
+        "okra",
+        "onion",
+        "oregano",
+        "paprika",
+        "parsley",
+        "parsnip",
+        "patty pan",
+        "pea",
+        "pinto bean",
+        "potato",
+        "pumpkin",
+        "radicchio",
+        "radish",
+        "rhubarb",
+        "rosemary",
+        "runner bean",
+        "rutabaga",
+        "sage",
+        "scallion",
+        "shallot",
+        "skirret",
+        "snap pea",
+        "soy bean",
+        "spaghetti squash",
+        "spinach",
+        "squash ",
+        "sweet potato",
+        "tabasco pepper",
+        "taro",
+        "tat soi",
+        "thyme",
+        "topinambur",
+        "tubers",
+        "turnip",
+        "wasabi",
+        "water chestnut",
+        "watercress",
+        "white radish",
+        "yam",
+        "zucchini"
+    ]
+}
+
+curl localhost:8080
+
+{"description":"A list of all produce.","products":["acorn squash","alfalfa sprout","amaranth","anise","apple","apricot","artichoke","arugula","asparagus","aubergine","avocado","azuki bean","banana","banana squash","basil","bean sprout","beet","bell pepper","bilberry","black bean","black-eyed pea","blackberry","blackcurrant","blood orange","blueberry","bok choy","borlotti bean","boysenberry","breadfruit","broad beans","broccoflower","broccoli","brussels sprout","butternut squash","cabbage","calabrese","canary melon","cantaloupe","caraway","carrot","cauliflower","cayenne pepper","celeriac","celery","chamomile","chard","chayote","cherimoya","cherry","chickpea","chili pepper","chives","cilantro","clementine","cloudberry","coconut","collard green","corn","corn salad","courgette","cranberry","cucumber","cucumber","currant","daikon","damson","date","delicata","dill","dragonfruit","durian","eggplant","eggplant","elderberry","endive","feijoa","fennel","fiddlehead","fig","frisee","garlic","gem squash","ginger","goji berry","gooseberry","grape","grapefruit","green bean","green pepper","guava","habanero","herbs and spice","honeydew","horseradish","hubbard squash","huckleberry","jackfruit","jalapeno","jambul","jerusalem artichoke","jicama","jujube","kale","kidney bean","kiwi fruit","kohlrabi","kumquat","lavender","leek ","legume","lemon","lemon grass","lentils","lettuce","lima bean","lime","loquat","lychee","mamey","mandarine","mangetout","mango","marjoram","mulberry","mung bean","mushroom","mustard green","navy bean","nectarine","new zealand spinach","nopale","nut","okra","olive","onion","orange","oregano","pamelo","papaya","paprika","parsley","parsnip","passionfruit","patty pan","pea","peach","pear","persimmon","physalis","pineapple","pinto bean","plum","pomegranate","pomelo","potato","pumpkin","purple mangosteen","quince","radicchio","radish","raisin","rambutan","raspberry","redcurrant","rhubarb","rock melon","rosemary","runner bean","rutabaga","sage","salal berry","satsuma","scallion","shallot","skirret","snap pea","soy bean","spaghetti squash","spinach","squash ","star fruit","strawberry","sweet potato","tabasco pepper","tamarillo","tangerine","taro","tat soi","thyme","tomato","topinambur","tubers","turnip","ugli fruit","wasabi","water chestnut","watercress","watermelon","white radish","yam","zucchini"]}
+
+docker ps
+CONTAINER ID        IMAGE                                         COMMAND                  CREATED             STATUS              PORTS                            NAMES
+b45f7b241fd8        linuxacademycontent/all-products:1.0.0        "node index.js"          12 minutes ago      Up 12 minutes                                        products_allproduct.1.ak4ksmv8vavqkkw75di2ywe7x
+027b15e19722        linuxacademycontent/vegetable-service:1.0.0   "nginx -g 'daemon of…"   12 minutes ago      Up 12 minutes       80/tcp                           products_vegetable.1.3ni3mtppigzowknc4uwotq85f
+21322e5ed1b0        linuxacademycontent/fruit-service:1.0.1       "nginx -g 'daemon of…"   12 minutes ago      Up 12 minutes       80/tcp                           products_fruit.1.s6qnrbd49xwx4p8bf1nholtow
+d0a25861988c        registry:2                                    "/entrypoint.sh /etc…"   3 days ago          Up 29 minutes       0.0.0.0:443->443/tcp, 5000/tcp   registry
+
+all-Products service logs
+-------------------------
+docker logs b45
+Server running on port 80
+80 http://172.31.13.74:8081 http://172.31.13.74:8082
+
+vegetable-service logs
+----------------------
+$ docker logs 027
+10.255.0.2 - - [19/Nov/2019:09:30:01 +0000] "GET / HTTP/1.1" 200 2542 "-" "curl/7.58.0"
+10.255.0.2 - - [19/Nov/2019:09:32:02 +0000] "GET / HTTP/1.1" 200 2542 "-" "-"
+
+fruits-service logs
+-------------------
+$ docker logs 213
+10.255.0.2 - - [19/Nov/2019:09:29:10 +0000] "GET / HTTP/1.1" 200 1360 "-" "curl/7.58.0"
+10.255.0.2 - - [19/Nov/2019:09:32:02 +0000] "GET / HTTP/1.1" 200 1360 "-" "-"
+
+
+Now Scaling the fruit and vegetable service
+--------------------------------------------
+
+docker service scale products_fruit=3
+
+products_fruit scaled to 3
+overall progress: 3 out of 3 tasks
+1/3: running   [==================================================>]
+2/3: running   [==================================================>]
+3/3: running   [==================================================>]
+verify: Service converged
+
+docker service scale products_vegetable=3
+
+products_vegetable scaled to 3
+overall progress: 3 out of 3 tasks
+1/3: running   [==================================================>]
+2/3: running   [==================================================>]
+3/3: running   [==================================================>]
+verify: Service converged
+
+docker service ls
+ID                  NAME                  MODE                REPLICAS            IMAGE                                         PORTS
+qic8era66sp7        products_allproduct   replicated          1/1                 linuxacademycontent/all-products:1.0.0        *:8080->80/tcp
+szkg044vq4o9        products_fruit        replicated          3/3                 linuxacademycontent/fruit-service:1.0.1       *:8082->80/tcp
+jqqocv3qbv89        products_vegetable    replicated          3/3                 linuxacademycontent/vegetable-service:1.0.0   *:8081->80/tcp
