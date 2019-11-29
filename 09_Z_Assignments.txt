@@ -1,8 +1,10 @@
 Learning Objectives:-
+
 Create a ConfigMap containing the configuration for the HAProxy ambassador.
 Create a multi-container pod which provides access to the legacy service on port 80
 
 Problem Statement:-
+
 Your supermarket company is in the process of moving their infrastructure to a Kubernetes platform in the cloud. 
 This is sometimes challenging, because some of the older, legacy portions of that infrastructure have non-standard requirements. 
 One of these legacy applications is a web service that provides a list of the various types of fruit the company sells in its stores.
